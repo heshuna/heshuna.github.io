@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+        
+        canvas {
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas width="600" height="600"></canvas>
+    <script>
+        var c = document.querySelector("canvas");
+        var ctx = c.getContext("2d");
+
+        var birdImg = new Image();
+        birdImg.src = "images/birds.png";
+
+        var canvasX = 100, canvasY = 100;
+        var birdIndex = 0;
+        //小鸟的初速度
+        var birdStep = 0;
+        var g = 0.000003;
+        //起始时间,结束时间,时间间隔
+        var startT = new Date();
+        var endT = new Date();
+        var offsetT = 0;
+
+        birdImg.onload = function () {
+            var birdW = birdImg.width / 3;
+            var birdH = birdImg.height;
+            var birdX = 0;
+
+            function fly() {
+                //下落就是每次调用时改变canvasY的值
+                startT = new Date();
+                offsetT = startT - endT;
+                endT = startT;
+                // 速度= 初速度+g*时间间隔
+                //重力加速度  移动的距离=速度*时间+g*时间间隔*时间间隔/2 
+                var distanceY = birdStep * offsetT + g * offsetT * offsetT / 2;
+                birdStep = birdStep + g * offsetT;
+                canvasY += distanceY;
+               
+                birdX = birdIndex * birdW;
+                ctx.clearRect(0, 0, c.width, c.height)
+                ctx.drawImage(birdImg, birdX, 0, birdW, birdH, canvasX, canvasY, birdW, birdH);
+                birdIndex++;
+                if (birdIndex > 2) {
+                    birdIndex = 0;
+                }
+                window.requestAnimationFrame(fly);
+            }
+            fly();
+
+        }
+    </script>
+</body>
+
+</html>

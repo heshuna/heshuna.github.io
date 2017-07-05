@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        
+        canvas {
+            /*margin: 0 auto;*/
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas width="600" height="600"></canvas>
+    <script src='js/sky.js'></script>
+    <script src='js/bird.js'></script> 
+    <script src='js/land.js'></script>
+    
+    <script>
+        var c = document.querySelector("canvas");
+        var ctx = c.getContext("2d");
+        function loadImg(arr,callback) {
+            var count = 0;
+            var imgList = [];
+            for (var i = 0; i < arr.length; i++) {
+                var img = new Image();
+                img.src = "images/" + arr[i] + ".png";
+                imgList[arr[i]] = img;
+                img.onload = function () {
+                    count++;
+                    if (count == arr.length) {
+                        callback(imgList);
+                    }
+                }
+            }
+        }
+
+        {
+            //起始时间,结束时间,时间间隔
+            var startT = new Date();
+            var endT = new Date();
+            var offsetT = 0;
+
+        }
+        loadImg(["birds", "sky","land"], function (imgList) {
+            var birdImg = imgList["birds"];
+            var skyImg = imgList["sky"];
+            var landImg = imgList["land"];
+
+            var sky1 = new Sky({
+                ctx: ctx,
+                skyImg: skyImg,
+                x: 0,
+                y: 0
+            })
+            var sky2 = new Sky({
+                ctx: ctx,
+                skyImg: skyImg,
+                x: skyImg.width,
+                y: 0
+            })
+            var bird = new Bird({
+                ctx: ctx,
+                birdImg: birdImg,
+                canvasX: 100,
+                canvasY: 100,
+            })
+
+             var landArr=[];
+             for(var i=0;i<4;i++){
+                 var land=new Land({
+                     ctx:ctx,
+                     landImg:landImg,
+                     canvasX:landImg.width*i,
+                     canvasY:c.height-landImg.height
+                 })
+                 landArr.push(land);
+             }
+
+
+            function fly() {
+                startT = new Date();
+                offsetT = startT - endT;
+                endT = startT;
+                //清除计之前的画布
+                ctx.clearRect(0, 0, c.width, c.height);
+                //绘制天空
+                sky1.drawSky();
+                sky2.drawSky();
+                //绘制小鸟
+                bird.drawBird(offsetT);
+                //绘制陆地
+                for(var i=0;i<landArr.length;i++){
+                    landArr[i].drawLand();
+                }
+                window.requestAnimationFrame(fly);
+            }
+            
+            fly();
+            c.onclick = function () {
+                bird.birdStep = -0.25;
+            }
+        })
+    </script>
+</body>
+
+</html>
